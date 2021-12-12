@@ -12,18 +12,18 @@ class E2:
     mediaFolder = ("/Users/edwjunior/Documents/UNIVERSIDAD/4o CURSO/1r TRIMESTRE/SISTEMES DE CODIFICACIÓ D'ÀUDIO I VIDEO"
                    "/SEMINARS/SEMINAR 3/media")
 
-    name = ''
+    fileName = ''
 
-    def select_media(self, ext, name):
-        pass
+    def select_media(self, ext):
         # Esta función nos va a detectar si se ha encontrado algún archivo con la extensión solicitada.
         content = os.listdir(self.mediaFolder)
         print(ext)
-        point_pos = name.index('.')  # cogemos la posición del punto.
-        prev_name = name[:point_pos]  # Seleccionamos toda la string menos la extensión.
         for element in content:
+            print(element.title())
+            point_pos = element.title().index(ext)  # cogemos la posición del punto.
+            prev_name = element.title()[:point_pos]  # Seleccionamos toda la string menos la extensión.
             try:
-                if element.startswith('Resistencia_BM19') and element.find(str(ext)):
+                if element.startswith(prev_name) and element.find(str(ext)):
                     print(element.title())
                     print(f"Copiando {element} --> {self.srcFolder} ... ", end="")
                     src = os.path.join(self.mediaFolder, element)  # origen
@@ -31,7 +31,7 @@ class E2:
                     shutil.copy(src, dst)
                     time.sleep(2)
                     print("Correcto")
-                elif element.startswith('Resistencia'):       # ERROR: ESTA HACIENDO ESTE ELSE PARA CADA ARCHIVO QUE NO SEA EL DE VP8 !!!!!!!
+                elif element.startswith(self.fileName[:self.fileName.index('_')]):       # ERROR: ESTA HACIENDO ESTE ELSE PARA CADA ARCHIVO QUE NO SEA EL DE VP8 !!!!!!!
                         print(f"Falló")
                         print(f"No existe ningún elemento con este formato.")
                         time.sleep(1)
@@ -73,10 +73,7 @@ class E2:
 
         codec1 = None
         codec2 = None
-        extension = None
-
         name = ''
-
         print(f"¡Bienvenido al ejercicio 2 del seminario 3 de Sistemas de Codificación de Audio y Video! \U0001F61C")
         print(f"En este ejercicio procederemos a comparar entre dos codecs de videos. Dos codecs que TU PODRÁS SELECCIONAR! \U0001F61D")
         print(f"Por favor, selecciona el primer codec que quieres comparar:")
@@ -97,22 +94,17 @@ class E2:
                 self.menu()
         elif resp1 == '1':
             codec1 = '_vp8'
-            self.name = conca
-            extension = '.webm'
-            self.select_media(codec1, extension)
+            self.select_media(codec1)
         elif resp1 == '2':
             codec1 = '_vp9'
-            extension = '.webm'
             self.select_media(codec1)
         elif resp1 == '3':
             codec1 = '_h265'
-            extension = '.mov'
             self.select_media(codec1)
         elif resp1 == '4':
-            codec1 = '-av1'
-            extension = '.avi'
+            codec1 = '_av1'
             self.select_media(codec1)
-        # self.objectClass1.moveFiles(self.srcFolder, self.mediaFolder)
+        E1.moveFiles(self.srcFolder, self.mediaFolder)
         # Ya que si no estaremos buscando en la carpeta media/ que no esta actualizada con los archivos que se han generado.
         print(f"Okey....")
         time.sleep(2)
@@ -145,3 +137,7 @@ class E2:
         elif resp2 == '4':
             codec2 = 'av1'
             self.select_media(codec2)
+
+#name = 'Resistencia_BM19.mp4'
+#s2 = E2()
+#s2.main(name)

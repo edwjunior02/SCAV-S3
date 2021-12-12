@@ -9,35 +9,35 @@ mediaFolder = (
             "/SEMINARS/SEMINAR 3/media")
 
 class E1:
-
-    input_name = ''
-    cropped_fileName = ''
-
     # Función que cambia los códecs de video según la variable (string) conversion_type y el nombre del archivo raíz..
+    fileName = ''
+    croppedName = ''
     def convert(self, conversion_type):
+        point_pos = self.croppedName.index('.')  # cogemos la posición del punto.
+        prev_name = self.croppedName[:point_pos]  # Seleccionamos toda la string menos la extensión.
         if conversion_type == 'VP8':
-            os.system("ffmpeg -i "+str(self.cropped_fileName)+" -c:v libvpx -q:a 0 "+str(self.cropped_fileName)+"_vp8.webm")
+            os.system("ffmpeg -i "+str(prev_name)+".mp4 -c:v libvpx -q:a 0 "+str(prev_name)+"_vp8.webm")
             print(f"Mostrando resultado...")
             time.sleep(2)
-            os.system("ffmpeg -i "+str(self.cropped_fileName)+"_vp8.webm")
+            os.system("ffmpeg -i "+str(prev_name)+"_vp8.webm")
             time.sleep(5)
         elif conversion_type == 'VP9':
-            os.system("ffmpeg -i "+str(self.cropped_fileName)+" -c:v libvpx-vp9 -q:a 0 "+str(self.cropped_fileName)+"_vp9.webm")
+            os.system("ffmpeg -i "+str(prev_name)+".mp4 -c:v libvpx-vp9 -q:a 0 "+str(prev_name)+"_vp9.webm")
             print(f"Mostrando resultado...")
             time.sleep(2)
-            os.system("ffmpeg -i "+str(self.cropped_fileName)+"_vp9.webm")
+            os.system("ffmpeg -i "+str(prev_name)+"_vp9.webm")
             time.sleep(5)
         elif conversion_type == 'H.265':
-            os.system("ffmpeg -i "+str(self.cropped_fileName)+" -c:v libx265 -x265-params crf=19 "+str(self.cropped_fileName)+"_h265.mov")
+            os.system("ffmpeg -i "+str(prev_name)+".mp4 -c:v libx265 -x265-params crf=19 "+str(prev_name)+"_h265.mov")
             print(f"Mostrando resultado...")
             time.sleep(2)
-            os.system("ffmpeg -i "+str(self.cropped_fileName)+"_h265.mov")
+            os.system("ffmpeg -i "+str(prev_name)+"_h265.mov")
             time.sleep(5)
         elif conversion_type == 'AV1':
-            os.system("ffmpeg -i "+str(self.cropped_fileName)+" -c:v libaom-av1 -strict -2 -c:a libopus "+str(self.cropped_fileName)+"_av1.avi")
+            os.system("ffmpeg -i "+str(prev_name)+".mp4 -c:v libaom-av1 -strict -2 -c:a libopus "+str(prev_name)+"_av1.avi")
             print(f"Mostrando resultado...")
             time.sleep(2)
-            os.system("ffmpeg -i "+str(self.cropped_fileName)+"_av1.avi")
+            os.system("ffmpeg -i "+str(prev_name)+"_av1.avi")
             time.sleep(5)
         else:
             pass
@@ -45,14 +45,15 @@ class E1:
         print(f"¡Convertido correctamente!")
 
     # Función que nos importa los archivos necesarios para trabajar desde la carpeta media/.
-    def importFiles(self, srcFolder, mediaFolder):
+    def importFiles(self, srcFolder, mediaFolder, name):
         if not os.path.isdir(mediaFolder):
             print('la primera carpeta no existe')
         elif not os.path.isdir(srcFolder):
             print('la segunda carpeta no existe')
 
         contenidos = os.listdir(mediaFolder)
-        filename = self.input_name
+        self.fileName = name
+        filename = self.fileName
         for elemento in contenidos:
             try:
                 if elemento == filename:
@@ -74,12 +75,10 @@ class E1:
     # Función que nos mueve los archivos a su carpeta origen (media/) una vez hemos trabajado con ellos.
     def moveFiles(self, srcFolder, mediaFolder):
         contenidos = os.listdir(srcFolder)
-        name = self.input_name
-        point_pos = name.index('.')    #cojemos la posición del punto.
-        prev_name = name[:point_pos]   #Seleccionamos toda la string menos la extensión.
+        name = self.fileName[:self.fileName.index('.')]
         for elemento in contenidos:
             try:
-                if elemento.startswith(prev_name):
+                if elemento.startswith(name):
                     print(f"Moviendo {elemento} --> {mediaFolder} ... ", end="")
                     src = os.path.join(srcFolder, elemento)  # origen
                     dst = os.path.join(mediaFolder, elemento)  # destino
@@ -97,16 +96,17 @@ class E1:
 
     # Función que nos prepara el archivo principal (vídeo) para optimizar rendimiento y reducir tiempos de compilación.
     def prepareMaterial(self):
-        # Reducir duración a 5 segundos de video.
-        os.system("ffmpeg -ss 00:01:40 -to 00:02:00 -i "+str(self.input_name)+" -vcodec copy -acodec copy "+str(self.input_name)+"_cropped_5s.mp4")
+        point_pos = self.fileName.index('.')  # cogemos la posición del primer punto.
+        prev_name = self.fileName[:point_pos] # seleccionamos los caracteres previos a este punto.
+        # Reducir duración a 20 segundos de video.
+        os.system("ffmpeg -ss 00:01:40 -to 00:02:00 -i "+str(self.fileName)+" -vcodec copy -acodec copy "+str(prev_name)+"_cropped_20s.mp4")
         # Bajar resolución al mínimo.
-        os.system("ffmpeg -i "+str(self.input_name)+"_cropped_5s.mp4 -vf scale=720:480 "+str(self.input_name)+"_cropped_480p.mp4")
+        os.system("ffmpeg -i "+str(prev_name)+"_cropped_20s.mp4 -vf scale=720:480 "+str(prev_name)+"_cropped_480p.mp4")
         # Ya tenemos el video preparado para su conversión.
-        self.cropped_fileName = str(str(self.input_name)+"_cropped_480p.mp4")
-
+        self.croppedName = str(str(prev_name)+"_cropped_480p.mp4")
     # Función principal desde donde se llaman al resto de funciones.
     def main(self, fileName):
-        self.input_name = fileName
+        self.fileName = fileName
         self.importFiles(srcFolder, mediaFolder)
         print(f"¡Bienvenido al ejercicio 1 del seminario 3 de Sistemas de Codificación de Audio y Video! \U0001F61C")
         print(f"Antes que nada, vamos a bajar mucho la resolución y duración de este video puesto que estos codecs tardan mucho en codificarse.")
@@ -130,7 +130,7 @@ class E1:
                     aux = False
                     self.moveFiles(srcFolder, mediaFolder)
                     from main import s3_main
-                    s3_main(fileName)
+                    s3_main(self.fileName)
                 else:
                     continue
             elif res == '1':

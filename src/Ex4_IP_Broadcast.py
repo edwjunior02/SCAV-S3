@@ -10,4 +10,5 @@ class E4:
         print(f"Genial! Ahora introduzca el puerto de salida (default: 23000):")
         port = input()
         print(f"Cambiando IP a "+str(ip_address)+" y cambiando puerto a "+str(port)+"...")
-        E3.make_stream(fileName, ip_address, port)
+        e3 = E3()
+        E3.make_stream(e3, ip_address, port, fileName)
